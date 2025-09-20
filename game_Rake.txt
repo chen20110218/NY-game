@@ -205,7 +205,10 @@ game:GetService("RunService").RenderStepped:Connect(updatePosition)
 while not _G.AYScriptConfirmed do
     wait(0.1)
 end
+print("✅ 等待结束，开始执行主脚本...")
 
+-- 在这里拼接你的主脚本
+-- 你的主脚本内容从这里开始...
 -- 用户确认后，继续执行下面的脚本
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -2281,9 +2284,11 @@ print("空投透视: " .. (airdropEspEnabled and "开启" or "关闭"))
 print("速度提升: " .. (isSpeedBoostEnabled and "开启" or "关闭"))
 print("地点标记: " .. (isLocationMarkersEnabled and "开启" or "关闭"))
 print("夜视功能: " .. (nightVisionEnabled and "开启" or "关闭"))
+print("✅ 等待结束，开始执行主脚本...")
+
 -- 在这里拼接你的主脚本
 -- 你的主脚本内容从这里开始...
---自动喊话--
+-- 在这里拼接你的主脚本
 local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
