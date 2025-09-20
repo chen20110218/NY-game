@@ -1941,22 +1941,7 @@ local function createCircularMenu()
             TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
             {Size = UDim2.new(0, 300, 0, 220)}
         )
-        expandTween:Play()
-    end
-    
-    -- 隐藏长方形菜单的函数
-    local function hideRectangleMenu()
-        rectangleVisible = false
-        
-        -- 动画效果：收缩到中心
-        local collapseTween = TweenService:Create(
-            rectangleMenu,
-            TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-            {Size = UDim2.new(0, 0, 0, 0)}
-        )
-        collapseTween:Play()
-        
-        -- 延迟后隐藏菜单
+        expandTween:Play()延迟后隐藏菜单
         task.delay(0.3, function()
             if not rectangleVisible then
                 rectangleMenu.Visible = false
@@ -2004,7 +1989,10 @@ local function createCircularMenu()
     enemyEspButton.MouseButton1Click:Connect(function()
         enemyEspEnabled = not enemyEspEnabled
         
-        enemyEspB所有敌人ESP的显示状态
+        enemyEspButton.BackgroundColor3 = enemyEspEnabled and Color3.fromRGB(50, 200, 80) or Color3.fromRGB(100, 100, 100)
+        enemyEspButton.Text = enemyEspEnabled and "Rake透视开启" or "Rake透视关闭"
+        
+        -- 更新所有敌人ESP的显示状态
         for target, data in pairs(espCache) do
             if data.isEnemy then
                 local shouldShow = shouldShowESP(target, data)
@@ -2293,7 +2281,6 @@ print("空投透视: " .. (airdropEspEnabled and "开启" or "关闭"))
 print("速度提升: " .. (isSpeedBoostEnabled and "开启" or "关闭"))
 print("地点标记: " .. (isLocationMarkersEnabled and "开启" or "关闭"))
 print("夜视功能: " .. (nightVisionEnabled and "开启" or "关闭"))
-
 -- 在这里拼接你的主脚本
 -- 你的主脚本内容从这里开始...
 --自动喊话--
