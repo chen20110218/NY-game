@@ -1650,7 +1650,7 @@ local function createCircularMenu()
     local mainButton = Instance.new("ImageButton")
     mainButton.Name = "MainButton"
     mainButton.Size = UDim2.new(0, 50, 0, 50)
-    mainButton.Position = UDim2.new(1, -60, 0.5, -25)
+    mainButton.Position = UDim2.new(1, -60, 0.4, -25)
     mainButton.AnchorPoint = Vector2.new(0, 0.5)
     mainButton.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     mainButton.AutoButtonColor = true
@@ -1685,7 +1685,7 @@ local function createCircularMenu()
     local rectangleMenu = Instance.new("Frame")
     rectangleMenu.Name = "RectangleMenu"
     rectangleMenu.Size = UDim2.new(0, 0, 0, 0)
-    rectangleMenu.Position = UDim2.new(0.5, 0, 0.5, 0)
+    rectangleMenu.Position = UDim2.new(0.5, 0, 0.4, 0)
     rectangleMenu.AnchorPoint = Vector2.new(0.5, 0.5)
     rectangleMenu.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
     rectangleMenu.BorderSizePixel = 0
