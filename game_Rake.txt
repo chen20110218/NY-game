@@ -216,7 +216,7 @@ local Lighting = game:GetService("Lighting")
 
 -- ===== ESP 配置区域 =====
 local SETTINGS = {
-    ENEMY_TAGS = {"Rake", "Monster", "Enemy"},
+    ENEMY_TAGS = {"Rake"},
     ENEMY_COLOR = Color3.fromRGB(255, 50, 50),
     
     PLAYER_COLOR = Color3.fromRGB(50, 150, 255),
@@ -1939,7 +1939,7 @@ local function createCircularMenu()
         local expandTween = TweenService:Create(
             rectangleMenu,
             TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-            {Size = UDim2.new(0, 300, 0, 220)}
+            {Size = UDim2.new(0, 300, 0, 200)}
         )
         expandTween:Play()
     end
