@@ -1,216 +1,4 @@
 local Players = game:GetService("Players")
-
--- 黑名单列表（使用ASCII编码表示用户名）
-local blacklist = {
-    "",
-    
-}
-
--- 创建黑名单查找表
-local blacklistLookup = {}
-for _, name in ipairs(blacklist) do
-    blacklistLookup[name:lower()] = true
-end
-
--- 检查玩家是否在黑名单中
-local function isPlayerBlacklisted(player)
-    return blacklistLookup[player.Name:lower()] == true
-end
-
--- 玩家加入时的处理函数
-local function onPlayerAdded(player)
-    if isPlayerBlacklisted(player) then
-        player:Kick("你在黑名单中，无法进入游戏")
-        print("已阻止黑名单玩家进入: " .. player.Name)
-    else
-        print("玩家 " .. player.Name .. " 已加入游戏")
-    end
-end
-
--- 检查已经在线玩家
-for _, player in ipairs(Players:GetPlayers()) do
-    task.spawn(onPlayerAdded, player)
-end
-
--- 监听新玩家加入事件
-Players.PlayerAdded:Connect(onPlayerAdded)
-
-print("黑名单系统已加载，当前黑名单人数: " .. #blacklist)
-print("✅ 等待结束，开始执行主脚本...")
-
--- 在这里拼接你的主脚本
--- 你的主脚本内容从这里开始...
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local SoundService = game:GetService("SoundService")
-
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
--- 创建主屏幕GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "DoorScriptNotice"
-screenGui.Parent = playerGui
-screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- 创建主框架
-local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 400, 0, 300)
-mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-mainFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-mainFrame.BorderSizePixel = 0
-mainFrame.ClipsDescendants = true
-mainFrame.Parent = screenGui
-
--- 添加圆角
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 8)
-corner.Parent = mainFrame
-
--- 创建顶部装饰条
-local topBar = Instance.new("Frame")
-topBar.Name = "TopBar"
-topBar.Size = UDim2.new(1, 0, 0, 4)
-topBar.Position = UDim2.new(0, 0, 0, 0)
-topBar.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
-topBar.BorderSizePixel = 0
-topBar.Parent = mainFrame
-
--- 创建标题
-local title = Instance.new("TextLabel")
-title.Name = "Title"
-title.Size = UDim2.new(1, -40, 0, 30)
-title.Position = UDim2.new(0, 20, 0, 10)
-title.BackgroundTransparency = 1
-title.Text = "# NY"
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextScaled = true
-title.Font = Enum.Font.GothamBold
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = mainFrame
-
--- 创建副标题
-local subtitle = Instance.new("TextLabel")
-subtitle.Name = "Subtitle"
-subtitle.Size = UDim2.new(1, -40, 0, 20)
-subtitle.Position = UDim2.new(0, 20, 0, 40)
-subtitle.BackgroundTransparency = 1
-subtitle.Text = "## NY脚本 | 公告 | 3.0版本 ##"
-subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
-subtitle.TextScaled = true
-subtitle.Font = Enum.Font.Gotham
-subtitle.TextXAlignment = Enum.TextXAlignment.Left
-subtitle.Parent = mainFrame
-
--- 创建提示文本
-local notice = Instance.new("TextLabel")
-notice.Name = "Notice"
-notice.Size = UDim2.new(1, -40, 0, 25)
-notice.Position = UDim2.new(0, 20, 0, 65)
-notice.BackgroundTransparency = 1
-notice.Text = "必看提示！！！"
-notice.TextColor3 = Color3.fromRGB(255, 100, 100)
-notice.TextScaled = true
-notice.Font = Enum.Font.GothamBold
-notice.TextXAlignment = Enum.TextXAlignment.Left
-notice.Parent = mainFrame
-
--- 创建分隔线
-local separator = Instance.new("Frame")
-separator.Name = "Separator"
-separator.Size = UDim2.new(1, -40, 0, 2)
-separator.Position = UDim2.new(0, 20, 0, 95)
-separator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-separator.BorderSizePixel = 0
-separator.Parent = mainFrame
-
--- 创建公告内容文本
-local content = Instance.new("TextLabel")
-content.Name = "Content"
-content.Size = UDim2.new(1, -40, 0, 130)
-content.Position = UDim2.new(0, 20, 0, 105)
-content.BackgroundTransparency = 1
-content.Text = "作者：😎诺亚😎 为rake服务器打造  👻玩家追踪 rake追踪 废金属追踪 夜视 加速 地点标记👻     3.0版本：新增空投追踪和信号抢追踪 微小文字改动     小作坊 功能略有不足 请见谅 后续会继续更新(先等个一辈子再说) 最后祝您玩的愉快"
-content.TextColor3 = Color3.fromRGB(220, 220, 220)
-content.TextSize = 16
-content.TextWrapped = true
-content.Font = Enum.Font.Gotham
-content.TextXAlignment = Enum.TextXAlignment.Left
-content.TextYAlignment = Enum.TextYAlignment.Top
-content.Parent = mainFrame
-
--- 创建确认按钮
-local confirmButton = Instance.new("TextButton")
-confirmButton.Name = "ConfirmButton"
-confirmButton.Size = UDim2.new(0, 120, 0, 35)
-confirmButton.Position = UDim2.new(0.5, -60, 1, -50)
-confirmButton.AnchorPoint = Vector2.new(0.5, 0)
-confirmButton.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
-confirmButton.Text = "确认"
-confirmButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-confirmButton.TextSize = 16
-confirmButton.Font = Enum.Font.GothamBold
-confirmButton.Parent = mainFrame
-
--- 按钮圆角
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(0, 4)
-buttonCorner.Parent = confirmButton
-
--- 添加按钮悬停效果
-confirmButton.MouseEnter:Connect(function()
-    TweenService:Create(confirmButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 144, 255)}):Play()
-end)
-
-confirmButton.MouseLeave:Connect(function()
-    TweenService:Create(confirmButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 162, 255)}):Play()
-end)
-
--- 创建全局变量用于存储确认状态
-_G.AYScriptConfirmed = false
-
--- 按钮点击事件
-confirmButton.MouseButton1Click:Connect(function()
-    -- 播放确认音效
-    local sound = Instance.new("Sound")
-    sound.SoundId = "rbxassetid://170765130"
-    sound.Parent = SoundService
-    sound:Play()
-    
-    -- 等待音效播放完成
-    wait(0.5)
-    
-    TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 400, 0, 0)}):Play()
-    wait(0.3)
-    screenGui:Destroy()
-    _G.AYScriptConfirmed = true
-end)
-
--- 添加入场动画
-mainFrame.Size = UDim2.new(0, 400, 0, 0)
-TweenService:Create(mainFrame, TweenInfo.new(0.5), {Size = UDim2.new(0, 400, 0, 300)}):Play()
-
--- 添加屏幕尺寸变化时的自适应
-local function updatePosition()
-    mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-end
-
--- 监听屏幕尺寸变化
-game:GetService("RunService").RenderStepped:Connect(updatePosition)
-
--- 等待用户确认
-while not _G.AYScriptConfirmed do
-    wait(0.1)
-end
-print("✅ 等待结束，开始执行主脚本...")
-
--- 在这里拼接你的主脚本
--- 你的主脚本内容从这里开始...
--- 用户确认后，继续执行下面的脚本
-local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
@@ -1944,7 +1732,22 @@ local function createCircularMenu()
             TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
             {Size = UDim2.new(0, 300, 0, 220)}
         )
-        expandTween:Play()延迟后隐藏菜单
+        expandTween:Play()
+    end
+    
+    -- 隐藏长方形菜单的函数
+    local function hideRectangleMenu()
+        rectangleVisible = false
+        
+        -- 动画效果：收缩到中心
+        local collapseTween = TweenService:Create(
+            rectangleMenu,
+            TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            {Size = UDim2.new(0, 0, 0, 0)}
+        )
+        collapseTween:Play()
+        
+        -- 延迟后隐藏菜单
         task.delay(0.3, function()
             if not rectangleVisible then
                 rectangleMenu.Visible = false
