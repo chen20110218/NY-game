@@ -1,0 +1,82 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/chen20110218/ESP_GAME/refs/heads/main/%E9%BB%91%E5%90%8D%E5%8D%95.txt",true))()
+local function loadScript(url, scriptName)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "加载中",
+        Text = "正在加载" .. scriptName,
+        Icon = "",
+        Duration = 2
+    })
+    
+    local loadSuccess, loadError = pcall(function()
+        loadstring(game:HttpGet(url, true))()
+    end)
+    
+    if loadSuccess then
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "成功",
+            Text = scriptName .. "已成功加载",
+            Icon = "",
+            Duration = 5
+        })
+        return true
+    else
+        warn("加载" .. scriptName .. "失败: " .. tostring(loadError))
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "错误",
+            Text = scriptName .. "加载失败",
+            Icon = "",
+            Duration = 5
+        })
+        return false
+    end
+end
+
+local function checkServer()
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "欢迎使用NY",
+        Text = "正在检测服务器...",
+        Icon = "",
+        Duration = 3
+    })
+    
+    wait(2)
+    
+    local success, result = pcall(function()
+        return game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+    end)
+    
+    local gameName = success and result or "未知游戏"
+    
+    if string.find(string.lower(gameName), "the rake remastered") then
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "服务器检测",
+            Text = "已检测到rake，正在加载rake功能",
+            Icon = "",
+            Duration = 5
+        })
+        
+        wait(1)
+        
+        loadScript(
+            "https://raw.githubusercontent.com/chen20110218/NY-game/refs/heads/main/game_Rake.txt",
+            "Rake功能"
+        )
+    else
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "服务器检测",
+            Text = "没有扫描到服务器，为您开启通用功能",
+            Icon = "",
+            Duration = 5
+        })
+        
+        wait(1)
+        
+        loadScript(
+            "https://raw.githubusercontent.com/chen20110218/ESP_GAME/refs/heads/main/birdfly.txt",
+            "飞行功能"
+        )
+    end
+end
+
+game.Players.LocalPlayer:WaitForChild("PlayerGui")
+checkServer()
