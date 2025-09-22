@@ -573,3 +573,327 @@ end)
 
 print("敌人ESP已加载")
 print("按 F5 键切换敌人ESP的开启/关闭状态")
+-- 高级枪械透视脚本
+-- 支持全图扫描、距离显示和文字标签
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local GuiService = game:GetService("GuiService")
+
+-- 配置参数
+local config = {
+    maxDistance = 2000, -- 最大检测距离(stud)
+    highlightColor = Color3.fromRGB(65, 105, 225), -- 高亮颜色(改为蓝色系)
+    highlightTransparency = 0.3, -- 透明度
+    scanInterval = 1, -- 全图扫描间隔(秒)
+    updateInterval = 0.1, -- 更新间隔(秒)
+    labelColor = Color3.fromRGB(135, 206, 250), -- 标签颜色(改为淡蓝色)
+    labelSize = 15, -- 标签字体大小
+    maxLabels = 50, -- 最大显示标签数量
+    tagPrefix = "[枪]", -- 标签前缀改为"枪"
+    scanKey = Enum.KeyCode.T, -- 全图扫描快捷键
+    notificationDuration = 3, -- 提示显示时间(秒)
+    notificationColor = Color3.fromRGB(30, 144, 255) -- 深蓝色提示
+}
+
+-- 本地变量
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local camera = workspace.CurrentCamera
+
+-- 存储已高亮的枪械
+local highlightedItems = {}
+local itemCache = {}
+local lastScanTime = 0
+local scanning = false
+local lastNotificationTime = 0
+local notificationGui = nil
+
+-- 创建提示GUI
+local function createNotificationGui()
+    if notificationGui then
+        notificationGui:Destroy()
+    end
+    
+    notificationGui = Instance.new("ScreenGui")
+    notificationGui.Name = "GunNotifications"
+    notificationGui.Parent = player.PlayerGui
+    notificationGui.ResetOnSpawn = false
+    notificationGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    
+    return notificationGui
+end
+
+-- 显示刷新提示
+local function showRefreshNotification()
+    local currentTime = os.clock()
+    if currentTime - lastNotificationTime < config.notificationDuration then
+        return -- 防止重复显示
+    end
+    
+    lastNotificationTime = currentTime
+    
+    local gui = createNotificationGui()
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.4, 0, 0.08, 0)
+    frame.Position = UDim2.new(0.3, 0, 0.05, 0)
+    frame.BackgroundColor3 = Color3.new(0, 0, 0)
+    frame.BackgroundTransparency = 0.5
+    frame.BorderSizePixel = 0
+    frame.Parent = gui
+    
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = "已刷新枪械"
+    textLabel.TextColor3 = config.notificationColor
+    textLabel.TextSize = 24
+    textLabel.Font = Enum.Font.SourceSansBold
+    textLabel.TextStrokeTransparency = 0.5
+    textLabel.TextStrokeColor3 = Color3.new(1, 1, 1)
+    textLabel.Parent = frame
+    
+    -- 淡入效果
+    frame.BackgroundTransparency = 1
+    textLabel.TextTransparency = 1
+    
+    local fadeIn = TweenService:Create(
+        frame,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {BackgroundTransparency = 0.5}
+    )
+    
+    local textFadeIn = TweenService:Create(
+        textLabel,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {TextTransparency = 0}
+    )
+    
+    fadeIn:Play()
+    textFadeIn:Play()
+    
+    -- 延迟后淡出
+    task.delay(config.notificationDuration, function()
+        if frame and frame.Parent then
+            local fadeOut = TweenService:Create(
+                frame,
+                TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+                {BackgroundTransparency = 1}
+            )
+            
+            local textFadeOut = TweenService:Create(
+                textLabel,
+                TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+                {TextTransparency = 1}
+            )
+            
+            fadeOut:Play()
+            textFadeOut:Play()
+            
+            fadeOut.Completed:Connect(function()
+                if frame and frame.Parent then
+                    frame:Destroy()
+                end
+            end)
+        end
+    end)
+end
+
+-- 转换stud为米的函数
+local function studsToMeters(studs)
+    return studs / 3.571
+end
+
+-- 创建标签函数
+local function createLabel(itemPart, distanceInStuds)
+    if not itemPart:FindFirstChild("GunLabel") then
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "GunLabel"
+        billboard.AlwaysOnTop = true
+        billboard.Size = UDim2.new(0, 200, 0, 50)
+        billboard.StudsOffset = Vector3.new(0, 2, 0)
+        billboard.Adornee = itemPart
+        billboard.MaxDistance = config.maxDistance
+        
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Size = UDim2.new(1, 0, 1, 0)
+        textLabel.BackgroundTransparency = 1
+        textLabel.Text = string.format("%s\n%.1f米", config.tagPrefix, studsToMeters(distanceInStuds))
+        textLabel.TextColor3 = config.labelColor
+        textLabel.TextSize = config.labelSize
+        textLabel.Font = Enum.Font.SourceSansBold
+        textLabel.TextStrokeTransparency = 0.5
+        textLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+        
+        textLabel.Parent = billboard
+        billboard.Parent = itemPart
+        
+        return billboard
+    end
+    return itemPart:FindFirstChild("GunLabel")
+end
+
+-- 更新标签距离
+local function updateLabel(itemPart, distanceInStuds)
+    local label = itemPart:FindFirstChild("GunLabel")
+    if label then
+        label.TextLabel.Text = string.format("%s\n%.1f米", config.tagPrefix, studsToMeters(distanceInStuds))
+        
+        -- 根据距离调整标签大小
+        local scale = math.clamp(1 - (distanceInStuds / config.maxDistance) * 0.5, 0.5, 1)
+        label.TextLabel.TextSize = config.labelSize * scale
+    end
+end
+
+-- 高亮枪械的函数
+local function highlightItem(itemPart)
+    if not highlightedItems[itemPart] then
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "GunHighlight"
+        highlight.FillColor = config.highlightColor
+        highlight.FillTransparency = config.highlightTransparency
+        highlight.OutlineColor = config.highlightColor
+        highlight.OutlineTransparency = 0
+        highlight.Adornee = itemPart
+        highlight.Parent = itemPart
+        
+        highlightedItems[itemPart] = highlight
+    end
+end
+
+-- 全图扫描枪械
+local function fullScan()
+    if scanning then return end
+    scanning = true
+    
+    local startTime = os.clock()
+    local previousCount = #itemCache
+    itemCache = {}
+    
+    -- 搜索枪械相关对象
+    local gunKeywords = {"gun", "pistol", "rifle", "shotgun", "sniper", "revolver", "ak", "m4", "ar", "smg", "lmg", "武器", "枪"}
+    
+    -- 扫描工作区
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            local lowerName = obj.Name:lower()
+            for _, keyword in ipairs(gunKeywords) do
+                if lowerName:find(keyword) then
+                    table.insert(itemCache, obj)
+                    break
+                end
+            end
+        end
+    end
+    
+    -- 扫描模型
+    for _, model in ipairs(workspace:GetChildren()) do
+        if model:IsA("Model") then
+            local lowerName = model.Name:lower()
+            for _, keyword in ipairs(gunKeywords) do
+                if lowerName:find(keyword) then
+                    for _, part in ipairs(model:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            table.insert(itemCache, part)
+                        end
+                    end
+                    break
+                end
+            end
+        end
+    end
+    
+    scanning = false
+    lastScanTime = os.clock()
+    
+    local newCount = #itemCache
+    print(string.format("全图扫描完成，找到 %d 个枪械相关物品，耗时 %.2f 秒", newCount, os.clock() - startTime))
+    
+    -- 如果检测到枪械且数量有变化，显示提示
+    if newCount > 0 and newCount ~= previousCount then
+        showRefreshNotification()
+    end
+end
+
+-- 清除不再需要的枪械高亮
+local function cleanUpHighlights(currentItems)
+    for itemPart, highlight in pairs(highlightedItems) do
+        if not table.find(currentItems, itemPart) then
+            if highlight then highlight:Destroy() end
+            local label = itemPart:FindFirstChild("GunLabel")
+            if label then label:Destroy() end
+            highlightedItems[itemPart] = nil
+        end
+    end
+end
+
+-- 更新附近的枪械显示
+local function updateNearbyItems()
+    if not humanoidRootPart or not humanoidRootPart:IsDescendantOf(workspace) then
+        return
+    end
+    
+    local currentTime = os.clock()
+    if currentTime - lastScanTime > config.scanInterval then
+        task.spawn(fullScan)
+    end
+    
+    local nearbyItems = {}
+    local playerPos = humanoidRootPart.Position
+    
+    -- 按距离排序
+    table.sort(itemCache, function(a, b)
+        return (playerPos - a.Position).Magnitude < (playerPos - b.Position).Magnitude
+    end)
+    
+    -- 只显示最近的maxLabels个枪械
+    local displayCount = 0
+    for _, itemPart in ipairs(itemCache) do
+        if displayCount >= config.maxLabels then break end
+        
+        local distance = (playerPos - itemPart.Position).Magnitude
+        if distance <= config.maxDistance then
+            table.insert(nearbyItems, itemPart)
+            highlightItem(itemPart)
+            local label = createLabel(itemPart, distance)
+            updateLabel(itemPart, distance)
+            displayCount += 1
+        end
+    end
+    
+    cleanUpHighlights(nearbyItems)
+end
+
+-- 设置快捷键
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == config.scanKey then
+        fullScan()
+    end
+end)
+
+-- 主循环
+RunService.Heartbeat:Connect(function()
+    updateNearbyItems()
+end)
+
+-- 玩家重生时重新获取角色
+player.CharacterAdded:Connect(function(newChar)
+    character = newChar
+    humanoidRootPart = newChar:WaitForChild("HumanoidRootPart")
+    
+    -- 重新创建提示GUI
+    createNotificationGui()
+end)
+
+-- 初始创建提示GUI
+createNotificationGui()
+
+-- 初始扫描
+task.spawn(fullScan)
+
+print("高级枪械透视脚本已激活")
+print(string.format("按 %s 键手动触发全图扫描", config.scanKey.Name))
