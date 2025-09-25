@@ -1738,7 +1738,7 @@ local function createCircularMenu()
     -- 长方形菜单
     local rectangleMenu = Instance.new("Frame")
     rectangleMenu.Name = "RectangleMenu"
-    rectangleMenu.Size = UDim2.new(0, 300, 0, 220)
+    rectangleMenu.Size = UDim2.new(0, 300, 0, 200)
     rectangleMenu.Position = UDim2.new(0.5, 0, 0.4, 0)
     rectangleMenu.AnchorPoint = Vector2.new(0.5, 0.5)
     rectangleMenu.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
