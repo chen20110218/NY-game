@@ -1721,7 +1721,7 @@ local function createCircularMenu()
     nyLabel.BackgroundTransparency = 1
     nyLabel.Text = "🐦"
     nyLabel.TextColor3 = Color3.fromRGB(200, 200, 255)
-    nyLabel.TextSize = 20
+    nyLabel.TextSize = 25
     nyLabel.Font = Enum.Font.SourceSansBold
     nyLabel.Parent = mainButton
     
@@ -1738,12 +1738,12 @@ local function createCircularMenu()
     -- 长方形菜单
     local rectangleMenu = Instance.new("Frame")
     rectangleMenu.Name = "RectangleMenu"
-    rectangleMenu.Size = UDim2.new(0, 0, 0, 0)
+    rectangleMenu.Size = UDim2.new(0, 300, 0, 220)
     rectangleMenu.Position = UDim2.new(0.5, 0, 0.4, 0)
     rectangleMenu.AnchorPoint = Vector2.new(0.5, 0.5)
     rectangleMenu.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
     rectangleMenu.BorderSizePixel = 0
-    rectangleMenu.Visible = false
+    rectangleMenu.Visible = true
     rectangleMenu.ZIndex = 2
     
     -- 长方形菜单圆角
@@ -1982,7 +1982,7 @@ local function createCircularMenu()
     rectangleMenu.Parent = screenGui
     
     -- 菜单状态
-    local rectangleVisible = false
+    local rectangleVisible = true
     
     -- 显示长方形菜单的函数
     local function showRectangleMenu()
