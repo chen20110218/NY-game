@@ -85,7 +85,7 @@ title.Name = "Title"
 title.Size = UDim2.new(1, -40, 0, 30)
 title.Position = UDim2.new(0, 20, 0, 10)
 title.BackgroundTransparency = 1
-title.Text = "# 小鸟有点帅"
+title.Text = "# 诺亚NY"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.TextScaled = true
 title.Font = Enum.Font.GothamBold
@@ -98,7 +98,7 @@ subtitle.Name = "Subtitle"
 subtitle.Size = UDim2.new(1, -40, 0, 20)
 subtitle.Position = UDim2.new(0, 20, 0, 40)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "## 小鸟脚本 | 公告 | 3.0版本 ##"
+subtitle.Text = "## NY脚本 | 公告 | 3.1版本 ##"
 subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
 subtitle.TextScaled = true
 subtitle.Font = Enum.Font.Gotham
@@ -127,20 +127,43 @@ separator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 separator.BorderSizePixel = 0
 separator.Parent = mainFrame
 
--- 创建公告内容文本
+-- 创建滚动框架
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Name = "ScrollFrame"
+scrollFrame.Size = UDim2.new(1, -40, 0, 130)
+scrollFrame.Position = UDim2.new(0, 20, 0, 105)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.BorderSizePixel = 0
+scrollFrame.ScrollBarThickness = 8
+scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 200) -- 根据内容高度调整
+scrollFrame.Parent = mainFrame
+
+-- 创建公告内容文本（放在滚动框架内）
 local content = Instance.new("TextLabel")
 content.Name = "Content"
-content.Size = UDim2.new(1, -40, 0, 130)
-content.Position = UDim2.new(0, 20, 0, 105)
+content.Size = UDim2.new(1, -5, 0, 310) -- 一句话，增加30
+content.Position = UDim2.new(0, 0, 0, 0)
 content.BackgroundTransparency = 1
-content.Text = "作者：😎诺亚😎 为rake服务器打造  👻玩家追踪 rake追踪 废金属追踪 夜视 加速 地点标记👻     3.0版本：新增空投追踪和信号抢追踪 微小文字改动     小作坊 功能略有不足 请见谅 后续会继续更新(先等个一辈子再说) 最后祝您玩的愉快"
+content.Text = "作者：😎诺亚😎 为The Rake 打造\n功能：👻玩家透视 Rake透视 废料透视 信号枪透视 空投透视 速度提升 夜视功能 地点标记👻\n脚本持续更新 祝您玩的愉快\n\n更新日志\n3.1版：增加映射表(可找作者更改自己在别人的NY脚本透视中的名字显示）\n3.0版：增加信号枪、空投功能\n2.1版：增加速度和地点功能\n2.0版：全面更新 增加菜单 悬浮窗\n1.3版：增加废料功能\n1.2版：增加夜视功能\n1.1版：增加控制按钮\n1.0版：玩家和Rake透视"
 content.TextColor3 = Color3.fromRGB(220, 220, 220)
 content.TextSize = 16
 content.TextWrapped = true
 content.Font = Enum.Font.Gotham
 content.TextXAlignment = Enum.TextXAlignment.Left
 content.TextYAlignment = Enum.TextYAlignment.Top
-content.Parent = mainFrame
+content.Parent = scrollFrame
+
+-- 根据文本内容自动调整滚动区域大小
+local function updateScrollSize()
+    local textHeight = content.TextBounds.Y
+    content.Size = UDim2.new(1, -5, 0, textHeight)
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, textHeight)
+end
+
+-- 等待一帧后更新滚动区域大小
+game:GetService("RunService").Heartbeat:Wait()
+updateScrollSize()
 
 -- 创建按钮容器
 local buttonContainer = Instance.new("Frame")
@@ -270,7 +293,7 @@ local Lighting = game:GetService("Lighting")
 
 -- ===== ESP 配置区域 =====
 local SETTINGS = {
-    ENEMY_TAGS = {"Rake"},
+    ENEMY_TAGS = {"Rake", "Monster", "Enemy"},
     ENEMY_COLOR = Color3.fromRGB(255, 50, 50),
     
     PLAYER_COLOR = Color3.fromRGB(50, 150, 255),
@@ -295,6 +318,43 @@ local SETTINGS = {
     HIGHLIGHT_DISABLE_DISTANCE = 4  
 }
 
+-- ===== 名称映射表 =====
+local NAME_MAPPING = {
+    -- 玩家名称映射
+    ["qiaoyanbo12"] = "👑诺亚本人",
+    ["CS78chen"] = "🗡诺亚左护法",
+    ["HYYNO1"] = "诺亚右护法🗡",
+    
+    -- 敌人名称映射
+    ["Rake"] = "雷克",
+    
+    
+    -- 默认映射（如果没有匹配的映射，则使用原始名称）
+    ["DEFAULT"] = function(originalName)
+        return originalName -- 默认返回原始名称
+    end
+}
+
+-- 获取映射名称的函数
+local function getMappedName(originalName)
+    if NAME_MAPPING[originalName] then
+        return NAME_MAPPING[originalName]
+    else
+        -- 检查是否包含关键词
+        for key, value in pairs(NAME_MAPPING) do
+            if key ~= "DEFAULT" and originalName:find(key) then
+                return value
+            end
+        end
+        -- 使用默认映射
+        if type(NAME_MAPPING["DEFAULT"]) == "function" then
+            return NAME_MAPPING["DEFAULT"](originalName)
+        else
+            return NAME_MAPPING["DEFAULT"] or originalName
+        end
+    end
+end
+
 -- 独立的ESP开关状态 - 全部默认关闭
 local playerEspEnabled = false
 local enemyEspEnabled = false
@@ -304,7 +364,7 @@ local flareGunEspEnabled = false  -- 信号枪透视开关
 local airdropEspEnabled = false   -- 空投透视开关
 
 -- 速度控制变量 - 默认关闭
-local TARGET_SPEED = 26
+local TARGET_SPEED = 24.8
 local isSpeedBoostEnabled = false
 local currentHumanoid = nil
 local speedMaintainConnection = nil
@@ -677,6 +737,11 @@ local function createESP(target)
     nameText.TextSize = SETTINGS.NAME_TEXT_SIZE
     nameText.Font = Enum.Font.SourceSansBold
     nameText.TextXAlignment = Enum.TextXAlignment.Center
+    
+    -- 使用映射表获取显示名称
+    local displayName = getMappedName(target.Name)
+    nameText.Text = displayName
+    
     nameText.Parent = billboard
     
     local tracer
@@ -712,7 +777,8 @@ local function createESP(target)
         startAttachment = tracer and tracer.Attachment0,
         endAttachment = tracer and tracer.Attachment1,
         isEnemy = isEnemy,
-        isTeammate = isTeammate
+        isTeammate = isTeammate,
+        displayName = displayName  -- 存储显示名称
     }
     
     -- 根据当前ESP状态设置高亮
@@ -800,7 +866,8 @@ RunService.Heartbeat:Connect(function(deltaTime)
                     data.billboard.ESP_Health.Text = ""
                 end
                 
-                data.billboard.ESP_Name.Text = target.Name
+                -- 使用存储的显示名称
+                data.billboard.ESP_Name.Text = data.displayName
             end
         end
     end
@@ -968,25 +1035,26 @@ local function createTrashLabel(trashPart, distanceInStuds)
         billboard.Name = "TrashLabel"
         billboard.AlwaysOnTop = true
         billboard.Size = UDim2.new(0, 200, 0, 50)
+        new(0, 200, 0, 50)
         billboard.StudsOffset = Vector3.new(0, 2, 0)
         billboard.Adornee = trashPart
         billboard.MaxDistance = trashConfig.maxDistance
         billboard.Enabled = trashEspEnabled
         
         local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.BackgroundTransparency = 1
-    textLabel.Text = string.format("%s\n%.1f米", trashConfig.tagPrefix, studsToMeters(distanceInStuds))
-    textLabel.TextColor3 = trashConfig.labelColor
-    textLabel.TextSize = trashConfig.labelSize
-    textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.TextStrokeTransparency = 0.5
-    textLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
-    
-    textLabel.Parent = billboard
-    billboard.Parent = trashPart
-    
-    return billboard
+        textLabel.Size = UDim2.new(1, 0, 1, 0)
+        textLabel.BackgroundTransparency = 1
+        textLabel.Text = string.format("%s\n%.1f米", trashConfig.tagPrefix, studsToMeters(distanceInStuds))
+        textLabel.TextColor3 = trashConfig.labelColor
+        textLabel.TextSize = trashConfig.labelSize
+        textLabel.Font = Enum.Font.SourceSansBold
+        textLabel.TextStrokeTransparency = 0.5
+        textLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+        
+        textLabel.Parent = billboard
+        billboard.Parent = trashPart
+        
+        return billboard
     end
     return trashPart:FindFirstChild("TrashLabel")
 end
@@ -1704,7 +1772,7 @@ local function createCircularMenu()
     local mainButton = Instance.new("ImageButton")
     mainButton.Name = "MainButton"
     mainButton.Size = UDim2.new(0, 50, 0, 50)
-    mainButton.Position = UDim2.new(1, -60, 0.4, -25)
+    mainButton.Position = UDim2.new(1, -60, 0.5, -25)
     mainButton.AnchorPoint = Vector2.new(0, 0.5)
     mainButton.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     mainButton.AutoButtonColor = true
@@ -1719,9 +1787,9 @@ local function createCircularMenu()
     nyLabel.Name = "NYLabel"
     nyLabel.Size = UDim2.new(1, 0, 1, 0)
     nyLabel.BackgroundTransparency = 1
-    nyLabel.Text = "🐦"
+    nyLabel.Text = "NY"
     nyLabel.TextColor3 = Color3.fromRGB(200, 200, 255)
-    nyLabel.TextSize = 25
+    nyLabel.TextSize = 20
     nyLabel.Font = Enum.Font.SourceSansBold
     nyLabel.Parent = mainButton
     
@@ -1738,13 +1806,12 @@ local function createCircularMenu()
     -- 长方形菜单
     local rectangleMenu = Instance.new("Frame")
     rectangleMenu.Name = "RectangleMenu"
-    rectangleMenu.Size = UDim2.new(0, 300, 0, 200)
-    rectangleMenu.Position = UDim2.new(0.5, 0, 0.4, 0)
+    rectangleMenu.Size = UDim2.new(0, 300, 0, 200)  -- 直接设置为展开后的尺寸
+    rectangleMenu.Position = UDim2.new(0.5, 0, 0.5, 0)
     rectangleMenu.AnchorPoint = Vector2.new(0.5, 0.5)
     rectangleMenu.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
     rectangleMenu.BorderSizePixel = 0
     rectangleMenu.Visible = true
-    rectangleMenu.ZIndex = 2
     
     -- 长方形菜单圆角
     local menuCorner = Instance.new("UICorner")
@@ -1776,7 +1843,7 @@ local function createCircularMenu()
     titleText.Size = UDim2.new(1, -40, 1, 0)
     titleText.Position = UDim2.new(0, 10, 0, 0)
     titleText.BackgroundTransparency = 1
-    titleText.Text = "🐦脚本 菜单"
+    titleText.Text = "NY 菜单"
     titleText.TextColor3 = Color3.fromRGB(200, 200, 255)
     titleText.TextSize = 16
     titleText.TextXAlignment = Enum.TextXAlignment.Left
@@ -1791,7 +1858,7 @@ local function createCircularMenu()
     closeButton.Position = UDim2.new(1, -30, 0, 0)
     closeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
     closeButton.BorderSizePixel = 0
-    closeButton.Text = "X"
+    closeButton.Text = "-"
     closeButton.TextColor3 = Color3.fromRGB(200, 200, 255)
     closeButton.TextSize = 16
     closeButton.Font = Enum.Font.SourceSansBold
@@ -1855,7 +1922,7 @@ local function createCircularMenu()
     enemyEspButton.Size = UDim2.new(1, 0, 0, 30)
     enemyEspButton.Position = UDim2.new(0, 0, 0, 40)
     enemyEspButton.BackgroundColor3 = enemyEspEnabled and Color3.fromRGB(50, 200, 80) or Color3.fromRGB(100, 100, 100)
-    enemyEspButton.Text = enemyEspEnabled and "Rake透视开启" or "Rake透视关闭"
+    enemyEspButton.Text = enemyEspEnabled and "敌人透视开启" or "敌人透视关闭"
     enemyEspButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     enemyEspButton.TextSize = 14
     enemyEspButton.Font = Enum.Font.SourceSansBold
@@ -1923,7 +1990,7 @@ local function createCircularMenu()
     speedToggleButton.Size = UDim2.new(1, 0, 0, 30)
     speedToggleButton.Position = UDim2.new(0, 0, 0, 40)
     speedToggleButton.BackgroundColor3 = isSpeedBoostEnabled and Color3.fromRGB(255, 165, 0) or Color3.fromRGB(100, 100, 100)
-    speedToggleButton.Text = isSpeedBoostEnabled and "速度开启" or "速度关闭"
+    speedToggleButton.Text = isSpeedBoostEnabled and "速度提升开启" or "速度提升关闭"
     speedToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     speedToggleButton.TextSize = 14
     speedToggleButton.Font = Enum.Font.SourceSansBold
@@ -2293,7 +2360,8 @@ RunService.Heartbeat:Connect(function(deltaTime)
                     data.billboard.ESP_Health.Text = ""
                 end
                 
-                data.billboard.ESP_Name.Text = target.Name
+                -- 使用存储的显示名称
+                data.billboard.ESP_Name.Text = data.displayName
             end
         end
     end
