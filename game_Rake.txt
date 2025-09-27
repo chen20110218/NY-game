@@ -324,6 +324,7 @@ local NAME_MAPPING = {
     ["qiaoyanbo12"] = "👑诺亚本人👑",
     ["CS78chen"] = "🗡诺亚左护法",
     ["HYYNO1"] = "诺亚右护法🗡",
+    ["dreamfsws"] = "鸭蛋重锤",
     
     -- 敌人名称映射
     ["Rake"] = "雷克",
