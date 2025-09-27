@@ -321,13 +321,13 @@ local SETTINGS = {
 -- ===== 名称映射表 =====
 local NAME_MAPPING = {
     -- 玩家名称映射
-    ["qiaoyanbo12"] = "诺亚本人",
+    ["qiaoyanbo22"] = "诺亚本人",
     ["CS78chen"] = "诺亚左护法",
     ["HYYNO1"] = "诺亚右护法",
     
     -- 敌人名称映射
     ["Rake"] = "雷克",
-    
+
     
     -- 默认映射（如果没有匹配的映射，则使用原始名称）
     ["DEFAULT"] = function(originalName)
@@ -1035,7 +1035,6 @@ local function createTrashLabel(trashPart, distanceInStuds)
         billboard.Name = "TrashLabel"
         billboard.AlwaysOnTop = true
         billboard.Size = UDim2.new(0, 200, 0, 50)
-        new(0, 200, 0, 50)
         billboard.StudsOffset = Vector3.new(0, 2, 0)
         billboard.Adornee = trashPart
         billboard.MaxDistance = trashConfig.maxDistance
@@ -1231,7 +1230,9 @@ local function updateNearbyTrash()
             table.insert(nearbyTrash, trashPart)
             highlightTrash(trashPart)
             local label = createTrashLabel(trashPart, distance)
-            updateTrashLabel(trashPart, distance)
+            if label then
+                updateTrashLabel(trashPart, distance)
+            end
             displayCount = displayCount + 1
         end
     end
@@ -1507,8 +1508,10 @@ local function updateNearbyFlareGuns()
             table.insert(nearbyItems, itemPart)
             highlightFlareGunItem(itemPart)
             local label = createFlareGunLabel(itemPart, distance)
-            updateFlareGunLabel(itemPart, distance)
-            displayCount += 1
+            if label then
+                updateFlareGunLabel(itemPart, distance)
+            end
+            displayCount = displayCount + 1
         end
     end
     
@@ -1744,7 +1747,7 @@ local function updateNearbyAirdrops()
                         if label then
                             updateAirdropLabel(trashPart, distance)
                         end
-                        displayCount += 1
+                        displayCount = displayCount + 1
                     else
                         -- 密集区域中的其他废料，移除标签
                         removeAirdropLabel(trashPart)
@@ -1858,7 +1861,7 @@ local function createCircularMenu()
     closeButton.Position = UDim2.new(1, -30, 0, 0)
     closeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
     closeButton.BorderSizePixel = 0
-    closeButton.Text = "-"
+    closeButton.Text = "X"
     closeButton.TextColor3 = Color3.fromRGB(200, 200, 255)
     closeButton.TextSize = 16
     closeButton.Font = Enum.Font.SourceSansBold
@@ -1973,7 +1976,7 @@ local function createCircularMenu()
     nightVisionToggleButton.Size = UDim2.new(1, 0, 0, 30)
     nightVisionToggleButton.Position = UDim2.new(0, 0, 0, 0)
     nightVisionToggleButton.BackgroundColor3 = nightVisionEnabled and Color3.fromRGB(50, 200, 200) or Color3.fromRGB(100, 100, 100)
-    nightVisionToggleButton.Text = nightVisionEnabled and "夜视开启" or "夜视关闭"
+    nightVisionToggleButton.Text = nightVisionEnabled and "夜视功能开启" or "夜视功能关闭"
     nightVisionToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     nightVisionToggleButton.TextSize = 14
     nightVisionToggleButton.Font = Enum.Font.SourceSansBold
@@ -2126,7 +2129,7 @@ local function createCircularMenu()
         enemyEspEnabled = not enemyEspEnabled
         
         enemyEspButton.BackgroundColor3 = enemyEspEnabled and Color3.fromRGB(50, 200, 80) or Color3.fromRGB(100, 100, 100)
-        enemyEspButton.Text = enemyEspEnabled and "Rake透视开启" or "Rake透视关闭"
+        enemyEspButton.Text = enemyEspEnabled and "敌人透视开启" or "敌人透视关闭"
         
         -- 更新所有敌人ESP的显示状态
         for target, data in pairs(espCache) do
@@ -2192,7 +2195,7 @@ local function createCircularMenu()
         local newState = toggleNightVision()
         
         nightVisionToggleButton.BackgroundColor3 = newState and Color3.fromRGB(50, 200, 200) or Color3.fromRGB(100, 100, 100)
-        nightVisionToggleButton.Text = newState and "夜视开启" or "夜视关闭"
+        nightVisionToggleButton.Text = newState and "夜视功能开启" or "夜视功能关闭"
     end)
     
     -- 速度控制按钮点击事件
