@@ -321,9 +321,9 @@ local SETTINGS = {
 -- ===== 名称映射表 =====
 local NAME_MAPPING = {
     -- 玩家名称映射
-    ["qiaoyanbo12"] = "👑诺亚本人",
-    ["CS78chen"] = "🗡诺亚左护法",
-    ["HYYNO1"] = "诺亚右护法🗡",
+    ["qiaoyanbo12"] = "诺亚本人",
+    ["CS78chen"] = "诺亚左护法",
+    ["HYYNO1"] = "诺亚右护法",
     
     -- 敌人名称映射
     ["Rake"] = "雷克",
